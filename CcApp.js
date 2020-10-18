@@ -1,6 +1,9 @@
 class CcApp extends HTMLElement {
   constructor() {
     super();
+
+    this.stateurls = document.location.pathname.split("/");
+    this.stateurls = "/users/user1".split("/");
   }
 
   connectedCallback() {
@@ -23,6 +26,28 @@ class CcApp extends HTMLElement {
     this.rootState.parentapp = this;
     this.rootState.init();
     this.activateState (this.rootState);
+
+    this.processStateUrls();
+  }
+
+  processStateUrls() {
+    if (!this.state) {
+      return;
+    }
+    for(var i = 0; i < this.stateurls.length; i++) {
+      var stateurl = this.stateurls[i];
+      if (!stateurl) {
+        continue;
+      }
+      for(var state of this.state.childStates) {
+        if (state._urlprefix && (state.urlprefix == stateurl || state._urlprefix.indexOf(stateurl) == 0)) {
+          this.stateurls.splice (i, 1);
+          this.activateState (state);
+          break;
+        }
+      }
+      break;
+    }
   }
 
   addState(state) {
@@ -49,6 +74,7 @@ class CcApp extends HTMLElement {
     if (this.state == parentstate || (parentstate == null && this.state == this.rootState)) {
       this.refillDrawer();
     }
+    this.processStateUrls();
   }
 
   stateRemoved(parentstate, state) {
@@ -172,7 +198,7 @@ class CcRootPageState extends CcPageState {
   }
 
   instantiate(element) {
-    element.innerHTML = "Root";
+    element.innerHTML = `Root`;
     setTimeout(() => {
       this.removeState(this.aufgaben);
     }, 1000);
