@@ -35,6 +35,13 @@ class CcApp extends HTMLElement {
     this.topappbar.titleHTML = this.state.title;
     this.state.instantiate (this.contentdiv);
 
+    var parentstate = state;
+    var url = this.state.urlprefix ? "/" + this.state.urlprefix : "/";
+    while(parentstate = parentstate.parentstate) {
+      url = (parentstate.urlprefix ? "/" + parentstate.urlprefix : "") + url;
+    }
+    history.pushState({ }, this.state.title, url);
+
     this.refillDrawer();
   }
 
@@ -61,8 +68,10 @@ class CcApp extends HTMLElement {
     if (parentstate) {
       var item = new CcMdcListItem(parentstate.title, parentstate.icon);
       this.drawer.addItem(item);
-      item.addEventListener("click", () => {
+      item.addEventListener("click", (e) => {
         this.activateState (parentstate);
+        e.preventDefault();
+        e.stopPropagation();
       });
     } else {
       var item = new CcMdcListItem("", "");
@@ -70,7 +79,6 @@ class CcApp extends HTMLElement {
       this.drawer.addItem(item);
     }
 
-//    this.drawer.addHeader(state.title);
     var item = new CcMdcListItem(state.title, state.icon);
     item.activated = true;
     item.inactive = true;
@@ -79,8 +87,10 @@ class CcApp extends HTMLElement {
     for(let childstate of state.childStates) {
       var item = new CcMdcListItem(childstate.title, childstate.icon);
       this.drawer.addItem(item);
-      item.addEventListener("click", () => {
+      item.addEventListener("click", (e) => {
         this.activateState (childstate);
+        e.preventDefault();
+        e.stopPropagation();
       });
     }
   }
@@ -93,6 +103,8 @@ class CcPageState {
     this._title = "";
     this._icon = "";
     this._drawer = false;
+    this._urlprefix = null;
+    this._id = null;
 
     this.childStates = [];
   }
@@ -133,6 +145,13 @@ class CcPageState {
     return this._drawer;
   }
 
+  get urlprefix () {
+    if (this._urlprefix) {
+      return this._urlprefix + (this._id === null ? "" : this._id);
+    }
+    return null;
+  }
+
   instantiate(element) {
     element.innerHTML = "Hallo";
   }
@@ -147,9 +166,9 @@ class CcRootPageState extends CcPageState {
   }
 
   init() {
-    this.aufgaben = new CcSimplePageState("Aufgaben", "assignment", (e) => {e.innerHTML = "Aufgaben";});
+    this.aufgaben = new CcSimplePageState("Aufgaben", "assignment", "jobs", (e) => {e.innerHTML = "Aufgaben";});
     this.addState(new CcUsersPageState());
-    this.addState(new CcSimplePageState("Wecker", "alarm_on", (e) => {e.innerHTML = "Wecker";}));
+    this.addState(new CcSimplePageState("Wecker", "alarm_on", "alarm", (e) => {e.innerHTML = "Wecker";}));
   }
 
   instantiate(element) {
@@ -164,11 +183,12 @@ class CcRootPageState extends CcPageState {
 }
 
 class CcSimplePageState extends CcPageState {
-  constructor(title, icon, fn) {
+  constructor(title, icon, urlprefix, fn) {
     super();
     this._title = title;
     this._icon = icon;
     this._fn = fn;
+    this._urlprefix = urlprefix;
   }
 
   instantiate(element) {
@@ -184,11 +204,14 @@ class CcUsersPageState extends CcPageState {
     this._title = "Benutzer";
     this._icon = "group";
     this._drawer = true;
+    this._urlprefix = "users";
   }
 
   instantiate(element) {
     setTimeout(() => {
-      this.addState(new CcUserPageState("alex" + (i++)));
+      var st = new CcUserPageState("alex" + (i++));
+      st._id = i;
+      this.addState(st);
     }, 2000);
     element.innerHTML = "Benutzer";
   }
@@ -200,6 +223,7 @@ class CcUserPageState extends CcPageState {
     this._title = name;
     this._icon = "face";
     this._drawer = false;
+    this._urlprefix = "user";
   }
 
   instantiate(element) {
