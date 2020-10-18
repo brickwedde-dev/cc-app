@@ -72,6 +72,8 @@ class CcApp extends HTMLElement {
 
 //    this.drawer.addHeader(state.title);
     var item = new CcMdcListItem(state.title, state.icon);
+    item.activated = true;
+    item.inactive = true;
     this.drawer.addItem(item);
 
     for(let childstate of state.childStates) {
