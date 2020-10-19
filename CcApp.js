@@ -2,6 +2,7 @@ class CcApp extends HTMLElement {
   constructor() {
     super();
 
+    this._drawerTitleHtml = "";
     this.stateurls = document.location.pathname.split("/");
     this.stateurls = "/users/user1".split("/");
   }
@@ -13,16 +14,29 @@ class CcApp extends HTMLElement {
     this.style.right = "0px";
     this.style.position = "absolute";
 
-    this.drawer = new CcMdcDrawer();
+    this.addEventListener("dragenter", (e) => { e.stopPropagation(); e.preventDefault(); e.dataTransfer.dropEffect = "none"; }, false);
+    this.addEventListener("dragover", (e) => { e.stopPropagation(); e.preventDefault(); e.dataTransfer.dropEffect = "none"; }, false);
+
+    this.drawer = new CcMdcDrawer(this.drawerTitleHtml);
     this.appendChild (this.drawer);
 
     this.topappbar = new CcMdcTopAppBar(this.drawer);
     this.drawer.contentElement.appendChild (this.topappbar);
+    this.drawer.drawerTitleHtml = this._drawerTitleHtml;
 
     this.contentdiv = document.createElement("div");
     this.topappbar.contentElement.appendChild(this.contentdiv);
+  }
 
-    this.rootState = new CcRootPageState();
+  set drawerTitleHtml (drawerTitleHtml) {
+    this._drawerTitleHtml = drawerTitleHtml;
+    if (this.drawer) {
+      this.drawer.drawerTitleHtml = drawerTitleHtml;
+    }
+  }
+
+  addRootState(state) {
+    this.rootState = state;
     this.rootState.parentapp = this;
     this.rootState.init();
     this.activateState (this.rootState);
@@ -65,7 +79,11 @@ class CcApp extends HTMLElement {
     while(parentstate = parentstate.parentstate) {
       url = (parentstate.urlprefix ? "/" + parentstate.urlprefix : "") + url;
     }
-    history.pushState({ }, this.state.title, url);
+    try {
+      history.pushState({ }, this.state.title, url);
+    } catch (e) {
+      //
+    }
 
     this.refillDrawer();
   }
@@ -87,7 +105,14 @@ class CcApp extends HTMLElement {
     this.drawer.clear();
 
     var state = this.state;
+    if (!state) {
+      return;
+    }
+
     while(!state.drawer) {
+      if (!state.parentstate) {
+        break;
+      }
       state = state.parentstate;
     }
     var parentstate = state.parentstate;
@@ -125,11 +150,12 @@ class CcApp extends HTMLElement {
 window.customElements.define("cc-app", CcApp);
 
 class CcPageState {
-  constructor() {
-    this._title = "";
-    this._icon = "";
-    this._drawer = false;
-    this._urlprefix = null;
+  constructor(title, icon, urlprefix, fn) {
+    this._title = title;
+    this._icon = icon;
+    this._fn = fn;
+    this._urlprefix = urlprefix;
+    this._drawer = true;
     this._id = null;
 
     this.childStates = [];
@@ -179,81 +205,6 @@ class CcPageState {
   }
 
   instantiate(element) {
-    element.innerHTML = "Hallo";
-  }
-}
-
-class CcRootPageState extends CcPageState {
-  constructor () {
-    super();
-    this._title = "Übersicht";
-    this._icon = "dashboard";
-    this._drawer = true;
-  }
-
-  init() {
-    this.aufgaben = new CcSimplePageState("Aufgaben", "assignment", "jobs", (e) => {e.innerHTML = "Aufgaben";});
-    this.addState(new CcUsersPageState());
-    this.addState(new CcSimplePageState("Wecker", "alarm_on", "alarm", (e) => {e.innerHTML = "Wecker";}));
-  }
-
-  instantiate(element) {
-    element.innerHTML = `Root`;
-    setTimeout(() => {
-      this.removeState(this.aufgaben);
-    }, 1000);
-    setTimeout(() => {
-      this.addState(this.aufgaben);
-    }, 2000);
-  }
-}
-
-class CcSimplePageState extends CcPageState {
-  constructor(title, icon, urlprefix, fn) {
-    super();
-    this._title = title;
-    this._icon = icon;
-    this._fn = fn;
-    this._urlprefix = urlprefix;
-  }
-
-  instantiate(element) {
     return this._fn(element);
   }
 }
-
-var i = 0;
-
-class CcUsersPageState extends CcPageState {
-  constructor() {
-    super();
-    this._title = "Benutzer";
-    this._icon = "group";
-    this._drawer = true;
-    this._urlprefix = "users";
-  }
-
-  instantiate(element) {
-    setTimeout(() => {
-      var st = new CcUserPageState("alex" + (i++));
-      st._id = i;
-      this.addState(st);
-    }, 2000);
-    element.innerHTML = "Benutzer";
-  }
-}
-
-class CcUserPageState extends CcPageState {
-  constructor(name) {
-    super();
-    this._title = name;
-    this._icon = "face";
-    this._drawer = false;
-    this._urlprefix = "user";
-  }
-
-  instantiate(element) {
-    element.innerHTML = "Hallo " + this._title;
-  }
-}
-
