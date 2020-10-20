@@ -158,12 +158,12 @@ window.customElements.define("cc-app", CcApp);
 
 class CcPageState {
   constructor(title, icon, urlprefix, fn, fnbuttons) {
-    this._title = title;
-    this._icon = icon;
+    this.title = title;
+    this.icon = icon;
+    this.drawer = true;
     this._fn = fn;
     this._fnbuttons = fnbuttons;
     this._urlprefix = urlprefix;
-    this._drawer = true;
     this._id = null;
 
     this.childStates = [];
@@ -191,18 +191,6 @@ class CcPageState {
   removeStates() {
     this.childStates.splice (0, this.childStates.length);
     this.parentapp.stateRemoved(this, null);
-  }
-
-  get title () {
-    return this._title;
-  }
-
-  get icon () {
-    return this._icon;
-  }
-
-  get drawer () {
-    return this._drawer;
   }
 
   get urlprefix () {
