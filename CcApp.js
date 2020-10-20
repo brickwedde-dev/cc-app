@@ -69,10 +69,15 @@ class CcApp extends HTMLElement {
   }
 
   activateState(state) {
+    if (state.instantiate (this.contentdiv) === false) {
+      return;
+    }
     this.state = state;
 
     this.topappbar.titleHTML = this.state.title;
-    this.state.instantiate (this.contentdiv);
+    this.topappbar.clearButtons();
+
+    this.state.instantiateButtons(this.topappbar);
 
     var parentstate = state;
     var url = this.state.urlprefix ? "/" + this.state.urlprefix : "/";
@@ -96,7 +101,9 @@ class CcApp extends HTMLElement {
   }
 
   stateRemoved(parentstate, state) {
-    if (this.state == parentstate || (parentstate == null && this.state == this.rootState)) {
+    if(this.state == state) {
+      this.activateState (state.parentstate);
+    } else if (this.state == parentstate || (parentstate == null && this.state == this.rootState)) {
       this.refillDrawer();
     }
   }
@@ -150,10 +157,11 @@ class CcApp extends HTMLElement {
 window.customElements.define("cc-app", CcApp);
 
 class CcPageState {
-  constructor(title, icon, urlprefix, fn) {
+  constructor(title, icon, urlprefix, fn, fnbuttons) {
     this._title = title;
     this._icon = icon;
     this._fn = fn;
+    this._fnbuttons = fnbuttons;
     this._urlprefix = urlprefix;
     this._drawer = true;
     this._id = null;
@@ -206,5 +214,12 @@ class CcPageState {
 
   instantiate(element) {
     return this._fn(element);
+  }
+
+  instantiateButtons(topappbar) {
+    if (this._fnbuttons) {
+      return this._fnbuttons(topappbar);
+    }
+    return false;
   }
 }
