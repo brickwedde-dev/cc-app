@@ -201,13 +201,17 @@ class CcPageState {
   }
 
   instantiate(element) {
-    return this._fn(element);
+    try {
+      return this._fn(element);
+    } catch (e) {}
   }
 
   instantiateButtons(topappbar) {
-    if (this._fnbuttons) {
-      return this._fnbuttons(topappbar);
-    }
+    try {
+      if (this._fnbuttons) {
+        return this._fnbuttons(topappbar);
+      }
+    } catch (e) {}
     return false;
   }
 }
