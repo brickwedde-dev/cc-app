@@ -69,28 +69,48 @@ class CcApp extends HTMLElement {
   }
 
   activateState(state) {
-    if (state.instantiate (this.contentdiv) === false) {
-      return;
-    }
-    this.state = state;
-
-    this.topappbar.titleHTML = this.state.title;
-    this.topappbar.clearButtons();
-
-    this.state.instantiateButtons(this.topappbar);
-
-    var parentstate = state;
-    var url = this.state.urlprefix ? "/" + this.state.urlprefix : "/";
-    while(parentstate = parentstate.parentstate) {
-      url = (parentstate.urlprefix ? "/" + parentstate.urlprefix : "") + url;
-    }
-    try {
-      history.pushState({ }, this.state.title, url);
-    } catch (e) {
-      //
+    var promise = Promise.resolve();
+    if (this.state && this.state.beforeLeave) {
+      try {
+        var result = this.state.beforeLeave (state);
+        if (result === true) {
+          promise = Promise.reject();
+        } else if (result.then && result.catch) {
+          promise = result;
+        } else {
+          promise = Promise.resolve();
+        }
+      } catch (e) {
+      }
     }
 
-    this.refillDrawer();
+    promise.then(() => {
+      if (state.instantiate (this.contentdiv) === false) {
+        return;
+      }
+      this.state = state;
+
+      this.topappbar.titleHTML = this.state.title;
+      this.topappbar.clearButtons();
+
+      this.state.instantiateButtons(this.topappbar);
+
+      var parentstate = state;
+      var url = this.state.urlprefix ? "/" + this.state.urlprefix : "/";
+      while(parentstate = parentstate.parentstate) {
+        url = (parentstate.urlprefix ? "/" + parentstate.urlprefix : "") + url;
+      }
+      try {
+        history.pushState({ }, this.state.title, url);
+      } catch (e) {
+        //
+      }
+
+      this.refillDrawer();
+    })
+    .catch(() => {
+      // egal
+    });
   }
 
   stateAdded(parentstate, state) {
@@ -198,6 +218,10 @@ class CcPageState {
       return this._urlprefix + (this._id === null ? "" : this._id);
     }
     return null;
+  }
+
+  beforeLeave (newState) {
+    return false;
   }
 
   instantiate(element) {
