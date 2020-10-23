@@ -101,7 +101,9 @@ class CcApp extends HTMLElement {
         url = (parentstate.urlprefix ? "/" + parentstate.urlprefix : "") + url;
       }
       try {
-        history.pushState({ }, this.state.title, url);
+        if (document.location.protocol == "https:") {
+          history.pushState({ }, this.state.title, url);
+        }
       } catch (e) {
         //
       }
@@ -123,6 +125,7 @@ class CcApp extends HTMLElement {
   stateRemoved(parentstate, state) {
     if(this.state == state) {
       this.activateState (state.parentstate);
+      this.refillDrawer();
     } else if (this.state == parentstate || (parentstate == null && this.state == this.rootState)) {
       this.refillDrawer();
     }
@@ -198,6 +201,23 @@ class CcPageState {
     state.init();
     this.childStates.push (state);
     this.parentapp.stateAdded(this, state);
+  }
+
+  addStateAfter(state, afterstate) {
+    state.parentstate = this;
+    state.parentapp = this.parentapp;
+    state.init();
+
+    var i = this.childStates.indexOf(afterstate);
+    if (i < 0) {
+      i = this.childStates.length - 1;
+    }
+    this.childStates.splice (i + 1, 0, state);
+    this.parentapp.stateAdded(this, state);
+  }
+
+  getState(index) {
+    return this.childStates[index];
   }
 
   removeState(state) {
