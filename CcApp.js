@@ -3,8 +3,7 @@ class CcApp extends HTMLElement {
     super();
 
     this._drawerTitleHtml = "";
-    this.stateurls = document.location.pathname.split("/");
-    this.stateurls = "/users/user1".split("/");
+    this.stateurls = document.location.search ? document.location.search.substring(1).split("/") : [];
   }
 
   connectedCallback() {
@@ -45,7 +44,8 @@ class CcApp extends HTMLElement {
   }
 
   processStateUrls() {
-    if (!this.state) {
+    var mystate = this.state || this.rootState;
+    if (!mystate) {
       return;
     }
     for(var i = 0; i < this.stateurls.length; i++) {
@@ -53,9 +53,15 @@ class CcApp extends HTMLElement {
       if (!stateurl) {
         continue;
       }
-      for(var state of this.state.childStates) {
+      if (mystate._urlprefix && (mystate.urlprefix == stateurl || mystate._urlprefix.indexOf(stateurl) == 0)) {
+        this.stateurls.splice (i, 1);
+        i--;
+        continue;
+      }
+      for(var state of mystate.childStates) {
         if (state._urlprefix && (state.urlprefix == stateurl || state._urlprefix.indexOf(stateurl) == 0)) {
           this.stateurls.splice (i, 1);
+          i--;
           this.activateState (state);
           break;
         }
@@ -101,8 +107,8 @@ class CcApp extends HTMLElement {
         url = (parentstate.urlprefix ? "/" + parentstate.urlprefix : "") + url;
       }
       try {
-        if (document.location.protocol == "https:") {
-          history.pushState({ }, this.state.title, url);
+        if (document.location.protocol == "https:" || document.location.protocol == "http:") {
+          history.pushState({ }, this.state.title, "?" + url);
         }
       } catch (e) {
         //
