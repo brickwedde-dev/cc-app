@@ -253,7 +253,9 @@ class CcPageState {
   instantiate(element) {
     try {
       return this._fn(element);
-    } catch (e) {}
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   instantiateButtons(topappbar) {
