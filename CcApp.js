@@ -7,6 +7,7 @@ class CcApp extends HTMLElement {
   }
 
   connectedCallback() {
+    this.drawerstyle = this.getAttribute("drawerstyle") || "original";
     this.style.top = "0px";
     this.style.left = "0px";
     this.style.bottom = "0px";
@@ -151,34 +152,59 @@ class CcApp extends HTMLElement {
       }
       state = state.parentstate;
     }
-    var parentstate = state.parentstate;
-    if (parentstate) {
-      var item = new CcMdcListItem(`Zurück` , "arrow_back"); // &nbsp;<span style="font-size:8px;">${parentstate.title}</span>
-      this.drawer.addItem(item);
-      item.addEventListener("click", (e) => {
-        this.activateState (parentstate);
-        e.preventDefault();
-        e.stopPropagation();
-      });
-    } else {
-      var item = new CcMdcListItem("", "");
-      item.inactive = true;
-      this.drawer.addItem(item);
-    }
 
-    var item = new CcMdcListItem(state.title, state.icon);
-    item.activated = true;
-    item.inactive = true;
-    this.drawer.addItem(item);
+    switch (this.drawerstyle) {
+      case "tree":
+        var addState = (parent, localstate, level) => {
+          var item = new CcMdcListItem(localstate.title, localstate.icon);
+          item.style.marginLeft = (level * 10) + "px";
+          item.inactive = (localstate == this.state);
+          item.activated = (localstate == this.state);
+          item.addEventListener("click", (e) => {
+            this.activateState (localstate);
+            e.preventDefault();
+            e.stopPropagation();
+          });
+          this.drawer.addItem(item);
 
-    for(let childstate of state.childStates) {
-      var item = new CcMdcListItem(childstate.title, childstate.icon);
-      this.drawer.addItem(item);
-      item.addEventListener("click", (e) => {
-        this.activateState (childstate);
-        e.preventDefault();
-        e.stopPropagation();
-      });
+          for(let childstate of localstate.childStates) {
+            addState(state, childstate, level + 1);
+          }
+        };
+        addState(null, this.rootState, 0);
+        break;
+
+      default:
+        var parentstate = state.parentstate;
+        if (parentstate) {
+          var item = new CcMdcListItem(`Zurück` , "arrow_back"); // &nbsp;<span style="font-size:8px;">${parentstate.title}</span>
+          this.drawer.addItem(item);
+          item.addEventListener("click", (e) => {
+            this.activateState (parentstate);
+            e.preventDefault();
+            e.stopPropagation();
+          });
+        } else {
+          var item = new CcMdcListItem("", "");
+          item.inactive = true;
+          this.drawer.addItem(item);
+        }
+    
+        var item = new CcMdcListItem(state.title, state.icon);
+        item.activated = true;
+        item.inactive = true;
+        this.drawer.addItem(item);
+    
+        for(let childstate of state.childStates) {
+          var item = new CcMdcListItem(childstate.title, childstate.icon);
+          this.drawer.addItem(item);
+          item.addEventListener("click", (e) => {
+            this.activateState (childstate);
+            e.preventDefault();
+            e.stopPropagation();
+          });
+        }
+        break;
     }
   }
 }
