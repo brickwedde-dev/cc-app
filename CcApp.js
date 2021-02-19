@@ -74,6 +74,11 @@ class CcApp extends HTMLElement {
     this.rootState.addState(state);
   }
 
+  redrawDrawerAndTitle() {
+    this.topappbar.titleHTML = this.state.title;
+    this.refillDrawer();
+  }
+
   activateState(state) {
     var promise = Promise.resolve();
     if (this.state && this.state.beforeLeave) {
