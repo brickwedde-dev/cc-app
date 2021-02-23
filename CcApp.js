@@ -202,6 +202,7 @@ class CcApp extends HTMLElement {
     
         for(let childstate of state.childStates) {
           var item = new CcMdcListItem(childstate.title, childstate.icon);
+          item.selected = (childstate == this.state);
           this.drawer.addItem(item);
           item.addEventListener("click", (e) => {
             this.activateState (childstate);
