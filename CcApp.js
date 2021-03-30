@@ -36,6 +36,7 @@ class CcApp extends HTMLElement {
   }
 
   addRootState(state) {
+    this.state = null;
     this.rootState = state;
     this.rootState.parentapp = this;
     this.rootState.init();
