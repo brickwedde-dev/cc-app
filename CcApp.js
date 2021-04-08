@@ -107,12 +107,14 @@ class CcApp extends HTMLElement {
       this.state.instantiateButtons(this.topappbar);
 
       var titlediv = document.createElement("span");
+      titlediv.style.cursor = "default";
 
       var parentstate = state;
       var url = this.state.urlprefix ? "/" + this.state.urlprefix : "/";
       
       var singlediv = document.createElement("span");
       singlediv.innerHTML = this.state.title;
+      singlediv.style.color = "#909CCC";
       titlediv.appendChild(singlediv);
 
       while(parentstate = parentstate.parentstate) {
@@ -120,7 +122,8 @@ class CcApp extends HTMLElement {
         url = (parentstate.urlprefix ? "/" + parentstate.urlprefix : "") + url;
 
         var singlediv = document.createElement("span");
-        singlediv.innerHTML = "&nbsp;-&nbsp;";
+        singlediv.style.color = "#888";
+        singlediv.innerHTML = "&nbsp;&#11162;&nbsp;";
         titlediv.insertBefore(singlediv, titlediv.childNodes[0]);
 
         var singlediv = document.createElement("span");
