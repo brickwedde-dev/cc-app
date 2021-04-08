@@ -103,15 +103,35 @@ class CcApp extends HTMLElement {
       }
       this.state = state;
 
-      this.topappbar.titleHTML = this.state.title;
       this.topappbar.clearButtons();
-
       this.state.instantiateButtons(this.topappbar);
+
+      var titlediv = document.createElement("span");
 
       var parentstate = state;
       var url = this.state.urlprefix ? "/" + this.state.urlprefix : "/";
+      
+      var singlediv = document.createElement("span");
+      singlediv.innerHTML = this.state.title;
+      titlediv.appendChild(singlediv);
+
       while(parentstate = parentstate.parentstate) {
+        let tempparent = parentstate;
         url = (parentstate.urlprefix ? "/" + parentstate.urlprefix : "") + url;
+
+        var singlediv = document.createElement("span");
+        singlediv.innerHTML = "&nbsp;-&nbsp;";
+        titlediv.insertBefore(singlediv, titlediv.childNodes[0]);
+
+        var singlediv = document.createElement("span");
+        singlediv.innerHTML = parentstate.title;
+        singlediv.style.cursor = "pointer";
+        singlediv.addEventListener("click", (e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          this.activateState(tempparent);
+        });
+        titlediv.insertBefore(singlediv, titlediv.childNodes[0]);
       }
       try {
         if (document.location.protocol == "https:" || document.location.protocol == "http:") {
@@ -120,6 +140,8 @@ class CcApp extends HTMLElement {
       } catch (e) {
         //
       }
+
+      this.topappbar.titleHTML = titlediv;
 
       this.refillDrawer();
     })
