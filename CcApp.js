@@ -8,6 +8,13 @@ class CcApp extends HTMLElement {
 
   connectedCallback() {
     this.drawerstyle = this.getAttribute("drawerstyle") || "original";
+    this.drawerdndarrow = null;
+    if (this.getAttribute("drawerdndarrow")) {
+      try {
+        this.drawerdndarrow = JSON.parse(this.getAttribute("drawerdndarrow"));
+      } catch (e) {
+      }
+    }
     this.style.top = "0px";
     this.style.left = "0px";
     this.style.bottom = "0px";
@@ -18,6 +25,7 @@ class CcApp extends HTMLElement {
     this.addEventListener("dragover", (e) => { e.stopPropagation(); e.preventDefault(); e.dataTransfer.dropEffect = "none"; }, false);
 
     this.drawer = new CcMdcDrawer(this.drawerTitleHtml);
+    this.drawer.dndarrowconfig = this.drawerdndarrow;
     this.appendChild (this.drawer);
 
     this.topappbar = new CcMdcTopAppBar(this.drawer);
@@ -229,7 +237,15 @@ class CcApp extends HTMLElement {
         for(let childstate of state.childStates) {
           var item = new CcMdcListItem(childstate.title, childstate.icon);
           item.selected = (childstate == this.state);
-          this.drawer.addItem(item);
+
+          if (childstate.dnd) {
+            removeChildNodes(childstate.dnd);
+            childstate.dnd.appendChild (item);
+            this.drawer.addItem(childstate.dnd);
+          } else {
+            this.drawer.addItem(item);
+          }
+
           item.addEventListener("click", (e) => {
             this.activateState (childstate);
             e.preventDefault();
