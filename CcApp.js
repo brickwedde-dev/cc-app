@@ -263,6 +263,23 @@ class CcApp extends HTMLElement {
     });
   }
 
+  updateUrlprefix(urlprefix) {
+    this.state._urlprefix = urlprefix;
+    var parentstate = this.state;
+    var url = this.state.urlprefix ? "/" + this.state.urlprefix : "/";
+    
+    while(parentstate = parentstate.parentstate) {
+      url = (parentstate.urlprefix ? "/" + parentstate.urlprefix : "") + url;
+    }
+    try {
+      if (document.location.protocol == "https:" || document.location.protocol == "http:") {
+        history.pushState({ }, this.state.title, "?" + url);
+      }
+    } catch (e) {
+      //
+    }
+  }
+
   stateAdded(parentstate, state) {
     if (this.state == parentstate || (parentstate == null && this.state == this.rootState)) {
       this.refillDrawer();
