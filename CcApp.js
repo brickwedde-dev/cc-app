@@ -52,15 +52,37 @@ class CcApp extends HTMLElement {
     this.tooltipdiv.style.zIndex = "999999";
     this.tooltipdiv.style.borderRadius = "4px";
     this.tooltipdiv.style.padding = "10px";
+    this.tooltipdiv.style.minWidth = "150px";
+    this.tooltipdiv.style.maxWidth = "30vw";
     this.appendChild(this.tooltipdiv);
 
     this.tooltipsurface = document.createElement("div");
     this.tooltipsurface.className = "mdc-tooltip__surface";
     this.tooltipdiv.appendChild(this.tooltipsurface);
 
+    this.addEventListener("mouseup", (e) => {
+      if (this.tooltipTimer) {
+        clearTimeout(this.tooltipTimer);
+      }
+    });
+
+    this.addEventListener("mousedown", (e) => {
+      if (this.tooltipTimer) {
+        clearTimeout(this.tooltipTimer);
+      }
+    });
+
     this.addEventListener("mousemove", (e) => {
-      this.tooltipdiv.style.top = (e.clientY + 10) + "px";
-      this.tooltipdiv.style.left = (e.clientX + 10) + "px";
+      var top = e.clientY + 15;
+      if (top > this.offsetHeight - this.tooltipdiv.offsetHeight) {
+        top = this.offsetHeight - this.tooltipdiv.offsetHeight;
+      }
+      var left = e.clientX + 15;
+      if (left > this.offsetWidth - this.tooltipdiv.offsetWidth) {
+        left = this.offsetWidth - this.tooltipdiv.offsetWidth;
+      }
+      this.tooltipdiv.style.top = (top) + "px";
+      this.tooltipdiv.style.left = (left) + "px";
 
       if (this.tooltipTimer) {
         clearTimeout(this.tooltipTimer);
