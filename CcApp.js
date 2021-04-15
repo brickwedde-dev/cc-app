@@ -6,6 +6,12 @@ class CcApp extends HTMLElement {
     this.stateurls = document.location.search ? document.location.search.substring(1).split("/") : [];
   }
 
+  disconnectedCallback() {
+    if (this.tooltipTimer) {
+      clearTimeout(this.tooltipTimer);
+    }
+  }
+
   connectedCallback() {
     this.drawerstyle = this.getAttribute("drawerstyle") || "original";
     this.drawerdndarrow = null;
@@ -34,6 +40,62 @@ class CcApp extends HTMLElement {
 
     this.contentdiv = document.createElement("div");
     this.topappbar.contentElement.appendChild(this.contentdiv);
+
+    this.tooltipdiv = document.createElement("div");
+    this.tooltipdiv.setAttribute("role", "tooltip");
+    this.tooltipdiv.setAttribute("aria-hidden", "true");
+    this.tooltipdiv.style.position = "absolute";
+    this.tooltipdiv.style.display = "none";
+    this.tooltipdiv.style.border = "2px solid #6D6D6D";
+    this.tooltipdiv.style.backgroundColor = "#6D6D6D";
+    this.tooltipdiv.style.color = "white";
+    this.tooltipdiv.style.zIndex = "999999";
+    this.tooltipdiv.style.borderRadius = "4px";
+    this.tooltipdiv.style.padding = "10px";
+    this.appendChild(this.tooltipdiv);
+
+    this.tooltipsurface = document.createElement("div");
+    this.tooltipsurface.className = "mdc-tooltip__surface";
+    this.tooltipdiv.appendChild(this.tooltipsurface);
+
+    this.addEventListener("mousemove", (e) => {
+      this.tooltipdiv.style.top = (e.clientY + 10) + "px";
+      this.tooltipdiv.style.left = (e.clientX + 10) + "px";
+
+      if (this.tooltipTimer) {
+        clearTimeout(this.tooltipTimer);
+      }
+      if (this.tooltiptimeout > 0) {
+        this.tooltipTimer = setTimeout(() => {
+          this.tooltipdiv.style.display = "block";
+          this.tooltipsurface.innerText = this.tooltiptext;
+          this.tooltipTimer = null;
+        }, this.tooltiptimeout);
+      }
+    });
+
+    this.addEventListener("mouseover", (e) => {
+      var div = e.target;
+      while (div && div.hasAttribute) {
+        var tooltipid = "";
+        if (div.hasAttribute("tooltipid")) {
+          tooltipid = div.getAttribute("tooltipid");
+        } else if (div.tooltipid) {
+          tooltipid = div.tooltipid;
+        }
+        if (tooltipid) {
+          if (tooltipid != this.lasttooltipid) {
+            this.lasttooltipid = tooltipid;
+            this.dispatchEvent(new CustomEvent("tooltipid_changed", {detail : this.lasttooltipid}));
+          }
+          return;
+        }
+        div = div.parentNode;
+      }
+
+      this.lasttooltipid = "";
+      this.dispatchEvent(new CustomEvent("tooltipid_changed", {detail : this.lasttooltipid}));
+    });
   }
 
   set drawerTitleHtml (drawerTitleHtml) {
@@ -41,6 +103,24 @@ class CcApp extends HTMLElement {
     if (this.drawer) {
       this.drawer.drawerTitleHtml = drawerTitleHtml;
     }
+  }
+
+  hideTooltip() {
+    if (this.tooltipTimer) {
+      clearTimeout(this.tooltipTimer);
+    }
+    this.tooltiptimeout = 0;
+    this.tooltipdiv.style.display = "none";
+  }
+
+  setTooltipText(tooltiptext) {
+    this.hideTooltip();
+    this.tooltiptext = tooltiptext;
+  }
+
+  showTooltip(timeout) {
+    this.hideTooltip();
+    this.tooltiptimeout = timeout;
   }
 
   addRootState(state) {
