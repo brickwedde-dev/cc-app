@@ -73,17 +73,6 @@ class CcApp extends HTMLElement {
     });
 
     this.addEventListener("mousemove", (e) => {
-      var top = e.clientY + 15;
-      if (top > this.offsetHeight - this.tooltipdiv.offsetHeight) {
-        top = this.offsetHeight - this.tooltipdiv.offsetHeight;
-      }
-      var left = e.clientX + 15;
-      if (left > this.offsetWidth - this.tooltipdiv.offsetWidth) {
-        left = this.offsetWidth - this.tooltipdiv.offsetWidth;
-      }
-      this.tooltipdiv.style.top = (top) + "px";
-      this.tooltipdiv.style.left = (left) + "px";
-
       if (this.tooltipTimer) {
         clearTimeout(this.tooltipTimer);
       }
@@ -92,6 +81,17 @@ class CcApp extends HTMLElement {
           this.tooltipdiv.style.display = "block";
           this.tooltipsurface.innerText = this.tooltiptext;
           this.tooltipTimer = null;
+
+          var top = e.clientY + 15;
+          if (top > this.offsetHeight - this.tooltipdiv.offsetHeight) {
+            top = this.offsetHeight - this.tooltipdiv.offsetHeight;
+          }
+          var left = e.clientX + 15;
+          if (left > this.offsetWidth - this.tooltipdiv.offsetWidth) {
+            left = this.offsetWidth - this.tooltipdiv.offsetWidth;
+          }
+          this.tooltipdiv.style.top = (top) + "px";
+          this.tooltipdiv.style.left = (left) + "px";
         }, this.tooltiptimeout);
       }
     });
