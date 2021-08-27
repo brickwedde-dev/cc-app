@@ -118,6 +118,12 @@ class CcApp extends HTMLElement {
       this.lasttooltipid = "";
       this.dispatchEvent(new CustomEvent("tooltipid_changed", {detail : this.lasttooltipid}));
     });
+
+    window.addEventListener("popstate", (e) => {
+      this.stateurls = document.location.search ? document.location.search.substring(1).split("/") : [];
+      this.activateState (this.rootState);
+      this.processStateUrls();
+    });
   }
 
   set drawerTitleHtml (drawerTitleHtml) {
@@ -198,7 +204,7 @@ class CcApp extends HTMLElement {
         var result = this.state.beforeLeave (state);
         if (result === true) {
           promise = Promise.reject();
-        } else if (result.then && result.catch) {
+        } else if (result && result.then && result.catch) {
           promise = result;
         } else {
           promise = Promise.resolve();
