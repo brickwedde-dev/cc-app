@@ -360,8 +360,11 @@ class CcApp extends HTMLElement {
         this.drawer.addItem(item);
     
         for(let childstate of state.childStates) {
-          var item = new CcMdcListItem(childstate.title, childstate.icon);
-          item.selected = (childstate == this.state);
+          let item = new CcMdcListItem(childstate.title, childstate.icon);
+          if (childstate._urlprefix == this.state._urlprefix) {
+            item.selected = true;
+          }
+          
 
           if (childstate.dnd) {
             removeChildNodes(childstate.dnd);
