@@ -118,15 +118,6 @@ class CcApp extends HTMLElement {
       this.lasttooltipid = "";
       this.dispatchEvent(new CustomEvent("tooltipid_changed", {detail : this.lasttooltipid}));
     });
-
-    window.addEventListener("popstate", (e) => {
-      this.stateurls = document.location.search ? document.location.search.substring(1).split("/") : [];
-      console.log(this.stateurls);
-      this.activateState (this.rootState, true)
-      .then(() => {
-        this.processStateUrls(true);
-      });
-    });
   }
 
   set drawerTitleHtml (drawerTitleHtml) {
@@ -159,12 +150,12 @@ class CcApp extends HTMLElement {
     this.rootState = state;
     this.rootState.parentapp = this;
     this.rootState.init();
-    this.activateState (this.rootState, true);
+    this.activateState (this.rootState);
 
-    this.processStateUrls(true);
+    this.processStateUrls();
   }
 
-  processStateUrls(preventHistoryPush) {
+  processStateUrls() {
     var mystate = this.state || this.rootState;
     if (!mystate) {
       return;
@@ -183,7 +174,7 @@ class CcApp extends HTMLElement {
         if (state._urlprefix && (state.urlprefix == stateurl || state._urlprefix.indexOf(stateurl) == 0)) {
           this.stateurls.splice (i, 1);
           i--;
-          this.activateState (state, preventHistoryPush);
+          this.activateState (state);
           break;
         }
       }
@@ -200,83 +191,75 @@ class CcApp extends HTMLElement {
     this.refillDrawer();
   }
 
-  activateState(state, preventHistoryPush) {
-    return new Promise((resolve2, reject2) => {
-      var promise = Promise.resolve();
-      if (this.state && this.state.beforeLeave) {
-        try {
-          var result = this.state.beforeLeave (state);
-          if (result === true) {
-            promise = Promise.reject();
-          } else if (result && result.then && result.catch) {
-            promise = result;
-          } else {
-            promise = Promise.resolve();
-          }
-        } catch (e) {
+  activateState(state) {
+    var promise = Promise.resolve();
+    if (this.state && this.state.beforeLeave) {
+      try {
+        var result = this.state.beforeLeave (state);
+        if (result === true) {
+          promise = Promise.reject();
+        } else if (result.then && result.catch) {
+          promise = result;
+        } else {
+          promise = Promise.resolve();
         }
+      } catch (e) {
+      }
+    }
+
+    promise.then(() => {
+      if (state.instantiate (this.contentdiv) === false) {
+        return;
+      }
+      this.state = state;
+
+      this.topappbar.clearButtons();
+      this.state.instantiateButtons(this.topappbar);
+
+      var titlediv = document.createElement("span");
+      titlediv.style.cursor = "default";
+
+      var parentstate = state;
+      var url = this.state.urlprefix ? "/" + this.state.urlprefix : "/";
+      
+      var singlediv = document.createElement("span");
+      singlediv.innerHTML = this.state.title;
+      singlediv.style.color = "#909CCC";
+      titlediv.appendChild(singlediv);
+
+      while(parentstate = parentstate.parentstate) {
+        let tempparent = parentstate;
+        url = (parentstate.urlprefix ? "/" + parentstate.urlprefix : "") + url;
+
+        var singlediv = document.createElement("span");
+        singlediv.style.color = "#888";
+        singlediv.innerHTML = "&nbsp;&#11162;&nbsp;";
+        titlediv.insertBefore(singlediv, titlediv.childNodes[0]);
+
+        var singlediv = document.createElement("span");
+        singlediv.innerHTML = parentstate.title;
+        singlediv.style.cursor = "pointer";
+        singlediv.addEventListener("click", (e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          this.activateState(tempparent);
+        });
+        titlediv.insertBefore(singlediv, titlediv.childNodes[0]);
+      }
+      try {
+        if (document.location.protocol == "https:" || document.location.protocol == "http:") {
+          history.pushState({ }, this.state.title, "?" + url);
+        }
+      } catch (e) {
+        //
       }
 
-      promise.then(() => {
-        if (state.instantiate (this.contentdiv) === false) {
-          resolve2();
-          return;
-        }
-        this.state = state;
+      this.topappbar.titleHTML = titlediv;
 
-        this.topappbar.clearButtons();
-        this.state.instantiateButtons(this.topappbar);
-
-        var titlediv = document.createElement("span");
-        titlediv.style.cursor = "default";
-
-        var parentstate = state;
-        var url = this.state.urlprefix ? "/" + this.state.urlprefix : "/";
-        
-        var singlediv = document.createElement("span");
-        singlediv.innerHTML = this.state.title;
-        singlediv.style.color = "#909CCC";
-        titlediv.appendChild(singlediv);
-
-        while(parentstate = parentstate.parentstate) {
-          let tempparent = parentstate;
-          url = (parentstate.urlprefix ? "/" + parentstate.urlprefix : "") + url;
-
-          var singlediv = document.createElement("span");
-          singlediv.style.color = "#888";
-          singlediv.innerHTML = "&nbsp;&#11162;&nbsp;";
-          titlediv.insertBefore(singlediv, titlediv.childNodes[0]);
-
-          var singlediv = document.createElement("span");
-          singlediv.innerHTML = parentstate.title;
-          singlediv.style.cursor = "pointer";
-          singlediv.addEventListener("click", (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            this.activateState(tempparent);
-          });
-          titlediv.insertBefore(singlediv, titlediv.childNodes[0]);
-        }
-        if (!preventHistoryPush) {
-          try {
-            if (document.location.protocol == "https:" || document.location.protocol == "http:") {
-              history.pushState({ }, this.state.title, "?" + url);
-              console.error(this.state.title, "?" + url);
-            }
-          } catch (e) {
-            //
-          }
-        }
-
-        this.topappbar.titleHTML = titlediv;
-
-        this.refillDrawer();
-        resolve2();
-      })
-      .catch(() => {
-        // egal
-        reject2();
-      });
+      this.refillDrawer();
+    })
+    .catch(() => {
+      // egal
     });
   }
 
@@ -291,7 +274,6 @@ class CcApp extends HTMLElement {
     try {
       if (document.location.protocol == "https:" || document.location.protocol == "http:") {
         history.pushState({ }, this.state.title, "?" + url);
-        console.error(this.state.title, "?" + url);
       }
     } catch (e) {
       //
@@ -302,7 +284,7 @@ class CcApp extends HTMLElement {
     if (this.state == parentstate || (parentstate == null && this.state == this.rootState)) {
       this.refillDrawer();
     }
-    this.processStateUrls(true);
+    this.processStateUrls();
   }
 
   stateRemoved(parentstate, state) {
@@ -332,10 +314,7 @@ class CcApp extends HTMLElement {
     switch (this.drawerstyle) {
       case "tree":
         var addState = (parent, localstate, level) => {
-          var item = document.createElement('li', { is: "cc-mdc-list-item" });
-          item.name = localstate.title;
-          item.icon = localstate.icon;
-
+          var item = createCcMdcListItem(localstate.title, localstate.icon);
           item.style.marginLeft = (level * 10) + "px";
           item.inactive = (localstate == this.state);
           item.activated = (localstate == this.state);
@@ -356,7 +335,7 @@ class CcApp extends HTMLElement {
       default:
         var parentstate = state.parentstate;
         if (parentstate) {
-          var item = new CcMdcListItem(`Zurück` , "arrow_back"); // &nbsp;<span style="font-size:8px;">${parentstate.title}</span>
+          var item = createCcMdcListItem(`Zurück` , "arrow_back"); // &nbsp;<span style="font-size:8px;">${parentstate.title}</span>
           this.drawer.addItem(item);
           item.addEventListener("click", (e) => {
             this.activateState (parentstate);
@@ -364,22 +343,19 @@ class CcApp extends HTMLElement {
             e.stopPropagation();
           });
         } else {
-          var item = new CcMdcListItem("", "");
+          var item = createCcMdcListItem("", "");
           item.inactive = true;
           this.drawer.addItem(item);
         }
     
-        var item = new CcMdcListItem(state.title, state.icon);
+        var item = createCcMdcListItem(state.title, state.icon);
         item.activated = true;
         item.inactive = true;
         this.drawer.addItem(item);
     
         for(let childstate of state.childStates) {
-          let item = new CcMdcListItem(childstate.title, childstate.icon);
-          if (childstate._urlprefix == this.state._urlprefix) {
-            item.selected = true;
-          }
-          
+          var item = createCcMdcListItem(childstate.title, childstate.icon);
+          item.selected = (childstate == this.state);
 
           if (childstate.dnd) {
             removeChildNodes(childstate.dnd);
