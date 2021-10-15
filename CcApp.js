@@ -118,6 +118,15 @@ class CcApp extends HTMLElement {
       this.lasttooltipid = "";
       this.dispatchEvent(new CustomEvent("tooltipid_changed", {detail : this.lasttooltipid}));
     });
+
+    window.addEventListener("popstate", (e) => {
+      this.stateurls = document.location.search ? document.location.search.substring(1).split("/") : [];
+      console.log(this.stateurls);
+      this.activateState (this.rootState, true)
+      .then(() => {
+        this.processStateUrls(true);
+      });
+    });
   }
 
   set drawerTitleHtml (drawerTitleHtml) {
@@ -150,12 +159,12 @@ class CcApp extends HTMLElement {
     this.rootState = state;
     this.rootState.parentapp = this;
     this.rootState.init();
-    this.activateState (this.rootState);
+    this.activateState (this.rootState, true);
 
-    this.processStateUrls();
+    this.processStateUrls(true);
   }
 
-  processStateUrls() {
+  processStateUrls(preventHistoryPush) {
     var mystate = this.state || this.rootState;
     if (!mystate) {
       return;
@@ -174,7 +183,7 @@ class CcApp extends HTMLElement {
         if (state._urlprefix && (state.urlprefix == stateurl || state._urlprefix.indexOf(stateurl) == 0)) {
           this.stateurls.splice (i, 1);
           i--;
-          this.activateState (state);
+          this.activateState (state, preventHistoryPush);
           break;
         }
       }
@@ -191,75 +200,83 @@ class CcApp extends HTMLElement {
     this.refillDrawer();
   }
 
-  activateState(state) {
-    var promise = Promise.resolve();
-    if (this.state && this.state.beforeLeave) {
-      try {
-        var result = this.state.beforeLeave (state);
-        if (result === true) {
-          promise = Promise.reject();
-        } else if (result.then && result.catch) {
-          promise = result;
-        } else {
-          promise = Promise.resolve();
+  activateState(state, preventHistoryPush) {
+    return new Promise((resolve2, reject2) => {
+      var promise = Promise.resolve();
+      if (this.state && this.state.beforeLeave) {
+        try {
+          var result = this.state.beforeLeave (state);
+          if (result === true) {
+            promise = Promise.reject();
+          } else if (result && result.then && result.catch) {
+            promise = result;
+          } else {
+            promise = Promise.resolve();
+          }
+        } catch (e) {
         }
-      } catch (e) {
       }
-    }
 
-    promise.then(() => {
-      if (state.instantiate (this.contentdiv) === false) {
-        return;
-      }
-      this.state = state;
-
-      this.topappbar.clearButtons();
-      this.state.instantiateButtons(this.topappbar);
-
-      var titlediv = document.createElement("span");
-      titlediv.style.cursor = "default";
-
-      var parentstate = state;
-      var url = this.state.urlprefix ? "/" + this.state.urlprefix : "/";
-      
-      var singlediv = document.createElement("span");
-      singlediv.innerHTML = this.state.title;
-      singlediv.style.color = "#909CCC";
-      titlediv.appendChild(singlediv);
-
-      while(parentstate = parentstate.parentstate) {
-        let tempparent = parentstate;
-        url = (parentstate.urlprefix ? "/" + parentstate.urlprefix : "") + url;
-
-        var singlediv = document.createElement("span");
-        singlediv.style.color = "#888";
-        singlediv.innerHTML = "&nbsp;&#11162;&nbsp;";
-        titlediv.insertBefore(singlediv, titlediv.childNodes[0]);
-
-        var singlediv = document.createElement("span");
-        singlediv.innerHTML = parentstate.title;
-        singlediv.style.cursor = "pointer";
-        singlediv.addEventListener("click", (e) => {
-          e.stopPropagation();
-          e.preventDefault();
-          this.activateState(tempparent);
-        });
-        titlediv.insertBefore(singlediv, titlediv.childNodes[0]);
-      }
-      try {
-        if (document.location.protocol == "https:" || document.location.protocol == "http:") {
-          history.pushState({ }, this.state.title, "?" + url);
+      promise.then(() => {
+        if (state.instantiate (this.contentdiv) === false) {
+          resolve2();
+          return;
         }
-      } catch (e) {
-        //
-      }
+        this.state = state;
 
-      this.topappbar.titleHTML = titlediv;
+        this.topappbar.clearButtons();
+        this.state.instantiateButtons(this.topappbar);
 
-      this.refillDrawer();
-    })
-    .catch(() => {
-      // egal
+        var titlediv = document.createElement("span");
+        titlediv.style.cursor = "default";
+
+        var parentstate = state;
+        var url = this.state.urlprefix ? "/" + this.state.urlprefix : "/";
+        
+        var singlediv = document.createElement("span");
+        singlediv.innerHTML = this.state.title;
+        singlediv.style.color = "#909CCC";
+        titlediv.appendChild(singlediv);
+
+        while(parentstate = parentstate.parentstate) {
+          let tempparent = parentstate;
+          url = (parentstate.urlprefix ? "/" + parentstate.urlprefix : "") + url;
+
+          var singlediv = document.createElement("span");
+          singlediv.style.color = "#888";
+          singlediv.innerHTML = "&nbsp;&#11162;&nbsp;";
+          titlediv.insertBefore(singlediv, titlediv.childNodes[0]);
+
+          var singlediv = document.createElement("span");
+          singlediv.innerHTML = parentstate.title;
+          singlediv.style.cursor = "pointer";
+          singlediv.addEventListener("click", (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            this.activateState(tempparent);
+          });
+          titlediv.insertBefore(singlediv, titlediv.childNodes[0]);
+        }
+        if (!preventHistoryPush) {
+          try {
+            if (document.location.protocol == "https:" || document.location.protocol == "http:") {
+              history.pushState({ }, this.state.title, "?" + url);
+              console.error(this.state.title, "?" + url);
+            }
+          } catch (e) {
+            //
+          }
+        }
+
+        this.topappbar.titleHTML = titlediv;
+
+        this.refillDrawer();
+        resolve2();
+      })
+      .catch(() => {
+        // egal
+        reject2();
+      });
     });
   }
 
@@ -274,6 +291,7 @@ class CcApp extends HTMLElement {
     try {
       if (document.location.protocol == "https:" || document.location.protocol == "http:") {
         history.pushState({ }, this.state.title, "?" + url);
+        console.error(this.state.title, "?" + url);
       }
     } catch (e) {
       //
@@ -284,7 +302,7 @@ class CcApp extends HTMLElement {
     if (this.state == parentstate || (parentstate == null && this.state == this.rootState)) {
       this.refillDrawer();
     }
-    this.processStateUrls();
+    this.processStateUrls(true);
   }
 
   stateRemoved(parentstate, state) {
@@ -357,8 +375,11 @@ class CcApp extends HTMLElement {
         this.drawer.addItem(item);
     
         for(let childstate of state.childStates) {
-          var item = new CcMdcListItem(childstate.title, childstate.icon);
-          item.selected = (childstate == this.state);
+          let item = new CcMdcListItem(childstate.title, childstate.icon);
+          if (childstate._urlprefix == this.state._urlprefix) {
+            item.selected = true;
+          }
+          
 
           if (childstate.dnd) {
             removeChildNodes(childstate.dnd);
