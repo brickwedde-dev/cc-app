@@ -314,7 +314,10 @@ class CcApp extends HTMLElement {
     switch (this.drawerstyle) {
       case "tree":
         var addState = (parent, localstate, level) => {
-          var item = new CcMdcListItem(localstate.title, localstate.icon);
+          var item = document.createElement('li', { is: "cc-mdc-list-item" });
+          item.name = localstate.title;
+          item.icon = localstate.icon;
+
           item.style.marginLeft = (level * 10) + "px";
           item.inactive = (localstate == this.state);
           item.activated = (localstate == this.state);
