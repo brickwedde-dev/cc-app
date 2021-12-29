@@ -214,7 +214,10 @@ class CcApp extends HTMLElement {
       this.state = state;
 
       this.topappbar.clearButtons();
+      
       this.state.instantiateButtons(this.topappbar);
+
+      this.dispatchEvent(new CustomEvent("topappbuttons", {}));
 
       var titlediv = document.createElement("span");
       titlediv.style.cursor = "default";
