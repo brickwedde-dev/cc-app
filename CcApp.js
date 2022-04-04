@@ -198,7 +198,7 @@ class CcApp extends HTMLElement {
         var result = this.state.beforeLeave (state);
         if (result === true) {
           promise = Promise.reject();
-        } else if (result.then && result.catch) {
+        } else if (result && result.then && result.catch) {
           promise = result;
         } else {
           promise = Promise.resolve();
