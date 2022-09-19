@@ -191,6 +191,29 @@ class CcApp extends HTMLElement {
     this.refillDrawer();
   }
 
+  reactivateState() {
+    var promise = Promise.resolve();
+    if (this.state && this.state.beforeLeave) {
+      try {
+        var result = this.state.beforeLeave (state);
+        if (result === true) {
+          promise = Promise.reject();
+        } else if (result && result.then && result.catch) {
+          promise = result;
+        } else {
+          promise = Promise.resolve();
+        }
+      } catch (e) {
+      }
+    }
+    promise.then(() => {
+      var state = this.state;
+      this.state = null;
+      this.activateState(state);
+    });
+
+  }
+
   activateState(state) {
     var promise = Promise.resolve();
     if (this.state && this.state.beforeLeave) {
