@@ -109,6 +109,7 @@ class CcApp extends HTMLElement {
           if (tooltipid != this.lasttooltipid) {
             this.lasttooltipid = tooltipid;
             this.dispatchEvent(new CustomEvent("tooltipid_changed", {detail : this.lasttooltipid}));
+            this.dispatchEvent(new CustomEvent("tooltipid_changed2", {detail : { tooltipid: this.lasttooltipid, div} }));
           }
           return;
         }
@@ -117,6 +118,7 @@ class CcApp extends HTMLElement {
 
       this.lasttooltipid = "";
       this.dispatchEvent(new CustomEvent("tooltipid_changed", {detail : this.lasttooltipid}));
+      this.dispatchEvent(new CustomEvent("tooltipid_changed2", {detail : { tooltipid: this.lasttooltipid, div: null} }));
     });
   }
 
