@@ -308,6 +308,16 @@ class CcApp extends HTMLElement {
     }
   }
 
+  getAppPath() {
+    var parentstate = this.state;
+    var url = this.state.urlprefix ? "/" + this.state.urlprefix : "/";
+    
+    while(parentstate = parentstate.parentstate) {
+      url = (parentstate.urlprefix ? "/" + parentstate.urlprefix : "") + url;
+    }
+    return url;
+  }
+
   stateAdded(parentstate, state) {
     if (this.state == parentstate || (parentstate == null && this.state == this.rootState)) {
       this.refillDrawer();
