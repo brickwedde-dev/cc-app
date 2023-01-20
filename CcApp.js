@@ -247,6 +247,12 @@ class CcApp extends HTMLElement {
       var titlediv = document.createElement("span");
       titlediv.style.cursor = "default";
 
+      if (state.documenttitle) {
+        document.title = state.documenttitle;
+      } else if (this.documenttitle) {
+        document.title = this.documenttitle;
+      }
+
       var parentstate = state;
       var url = this.state.urlprefix ? "/" + this.state.urlprefix : "/";
       
