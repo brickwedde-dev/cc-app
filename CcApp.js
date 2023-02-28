@@ -58,6 +58,7 @@ class CcApp extends HTMLElement {
 
     this.tooltipsurface = document.createElement("div");
     this.tooltipsurface.className = "mdc-tooltip__surface";
+    this.tooltipsurface.style.lineBreak = "anywhere";
     this.tooltipdiv.appendChild(this.tooltipsurface);
 
     this.addEventListener("mouseup", (e) => {
