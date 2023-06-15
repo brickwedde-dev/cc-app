@@ -379,7 +379,7 @@ class CcApp extends HTMLElement {
       default:
         var parentstate = state.parentstate;
         if (parentstate) {
-          var item = createCcMdcListItem(`Zurück` , "arrow_back"); // &nbsp;<span style="font-size:8px;">${parentstate.title}</span>
+          var item = createCcMdcListItem(t9n`Zurück` , "arrow_back"); // &nbsp;<span style="font-size:8px;">${parentstate.title}</span>
           this.drawer.addItem(item);
           item.addEventListener("click", (e) => {
             this.activateState (parentstate);
