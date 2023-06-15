@@ -4,6 +4,8 @@ class CcApp extends HTMLElement {
 
     this._drawerTitleHtml = "";
     this.stateurls = document.location.search ? document.location.search.substring(1).split("/") : [];
+
+    this.startWithHiddenDrawer = false;
   }
 
   disconnectedCallback() {
@@ -13,7 +15,7 @@ class CcApp extends HTMLElement {
   }
 
   connectedCallback() {
-    this.drawerstyle = this.getAttribute("drawerstyle") || "original";
+    this.drawerstyle = this.drawerstyle || this.getAttribute("drawerstyle") || "original";
     this.drawerdndarrow = null;
     if (this.getAttribute("drawerdndarrow")) {
       try {
@@ -31,6 +33,7 @@ class CcApp extends HTMLElement {
     this.addEventListener("dragover", (e) => { e.stopPropagation(); e.preventDefault(); e.dataTransfer.dropEffect = "none"; }, false);
 
     this.drawer = new CcMdcDrawer(this.drawerTitleHtml);
+    this.drawer.openDrawer = !this.startWithHiddenDrawer;
     this.drawer.dndarrowconfig = this.drawerdndarrow;
     this.appendChild (this.drawer);
 
@@ -58,6 +61,7 @@ class CcApp extends HTMLElement {
 
     this.tooltipsurface = document.createElement("div");
     this.tooltipsurface.className = "mdc-tooltip__surface";
+    this.tooltipsurface.style.lineBreak = "anywhere";
     this.tooltipdiv.appendChild(this.tooltipsurface);
 
     this.addEventListener("mouseup", (e) => {
