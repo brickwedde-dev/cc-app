@@ -193,7 +193,7 @@ class CcApp extends HTMLElement {
   }
 
   redrawDrawerAndTitle() {
-    this.topappbar.titleHTML = this.state.title;
+    this.redrawtopAppBarTitle ();
     this.refillDrawer();
   }
 
@@ -248,57 +248,59 @@ class CcApp extends HTMLElement {
 
       this.dispatchEvent(new CustomEvent("topappbuttons", {}));
 
-      var titlediv = document.createElement("span");
-      titlediv.style.cursor = "default";
-
-      if (state.documenttitle) {
-        document.title = state.documenttitle;
-      } else if (this.documenttitle) {
-        document.title = this.documenttitle;
-      }
-
-      var parentstate = state;
-      var url = this.state.urlprefix ? "/" + this.state.urlprefix : "/";
-      
-      var singlediv = document.createElement("span");
-      singlediv.innerHTML = this.state.title;
-      singlediv.style.color = "#909CCC";
-      titlediv.appendChild(singlediv);
-
-      while(parentstate = parentstate.parentstate) {
-        let tempparent = parentstate;
-        url = (parentstate.urlprefix ? "/" + parentstate.urlprefix : "") + url;
-
-        var singlediv = document.createElement("span");
-        singlediv.style.color = "#888";
-        singlediv.innerHTML = "&nbsp;&#11162;&nbsp;";
-        titlediv.insertBefore(singlediv, titlediv.childNodes[0]);
-
-        var singlediv = document.createElement("span");
-        singlediv.innerHTML = parentstate.title;
-        singlediv.style.cursor = "pointer";
-        singlediv.addEventListener("click", (e) => {
-          e.stopPropagation();
-          e.preventDefault();
-          this.activateState(tempparent);
-        });
-        titlediv.insertBefore(singlediv, titlediv.childNodes[0]);
-      }
-      try {
-        if (document.location.protocol == "https:" || document.location.protocol == "http:") {
-          history.pushState({ }, this.state.title, "?" + url);
-        }
-      } catch (e) {
-        //
-      }
-
-      this.topappbar.titleHTML = titlediv;
-
-      this.refillDrawer();
+      this.redrawDrawerAndTitle();
     })
     .catch(() => {
       // egal
     });
+  }
+
+  redrawtopAppBarTitle () {
+    var titlediv = document.createElement("span");
+    titlediv.style.cursor = "default";
+
+    if (this.state.documenttitle) {
+      document.title = this.state.documenttitle;
+    } else if (this.documenttitle) {
+      document.title = this.documenttitle;
+    }
+
+    var parentstate = this.state;
+    var url = this.state.urlprefix ? "/" + this.state.urlprefix : "/";
+    
+    var singlediv = document.createElement("span");
+    singlediv.innerHTML = this.state.title;
+    singlediv.style.color = "#909CCC";
+    titlediv.appendChild(singlediv);
+
+    while(parentstate = parentstate.parentstate) {
+      let tempparent = parentstate;
+      url = (parentstate.urlprefix ? "/" + parentstate.urlprefix : "") + url;
+
+      var singlediv = document.createElement("span");
+      singlediv.style.color = "#888";
+      singlediv.innerHTML = "&nbsp;&#11162;&nbsp;";
+      titlediv.insertBefore(singlediv, titlediv.childNodes[0]);
+
+      var singlediv = document.createElement("span");
+      singlediv.innerHTML = parentstate.title;
+      singlediv.style.cursor = "pointer";
+      singlediv.addEventListener("click", (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        this.activateState(tempparent);
+      });
+      titlediv.insertBefore(singlediv, titlediv.childNodes[0]);
+    }
+    try {
+      if (document.location.protocol == "https:" || document.location.protocol == "http:") {
+        history.pushState({ }, this.state.title, "?" + url);
+      }
+    } catch (e) {
+      //
+    }
+
+    this.topappbar.titleHTML = titlediv;
   }
 
   updateUrlprefix(urlprefix) {
