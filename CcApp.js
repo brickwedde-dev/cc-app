@@ -397,8 +397,18 @@ class CcApp extends HTMLElement {
         }
     
         var item = createCcMdcListItem(state.title, state.icon);
-        item.activated = true;
-        item.inactive = true;
+        item._activated = true;
+        item._inactive = true;
+        if (state != this.state) {
+          item.selected = false;
+          item.addEventListener("click", (e) => {
+            this.activateState (state);
+            e.preventDefault();
+            e.stopPropagation();
+          });
+        } else {
+          item.selected = true;
+        }
         this.drawer.addItem(item);
     
         for(let childstate of state.childStates) {
@@ -413,11 +423,13 @@ class CcApp extends HTMLElement {
             this.drawer.addItem(item);
           }
 
-          item.addEventListener("click", (e) => {
-            this.activateState (childstate);
-            e.preventDefault();
-            e.stopPropagation();
-          });
+          if (!item.selected) {
+            item.addEventListener("click", (e) => {
+              this.activateState (childstate);
+              e.preventDefault();
+              e.stopPropagation();
+            });
+          }
         }
         break;
     }
