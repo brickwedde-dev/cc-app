@@ -699,10 +699,11 @@ class CcWizard extends CcStates {
 
     this.style.top = "0px";
     this.style.left = "0px";
-    this.style.width = "90vw";
-    this.style.height = "90vh";
+    this.style.right = "0px";
+    this.style.bottom = "0px";
 
     this.headerdiv = document.createElement("div");
+    this.headerdiv.style.position = "absolute";
     this.headerdiv.style.top = "0px";
     this.headerdiv.style.left = "0px";
     this.headerdiv.style.right = "0px";
@@ -712,22 +713,24 @@ class CcWizard extends CcStates {
     this.headerdiv.innerHTML = "HEADER";
 
     this.stepsdiv = document.createElement("div");
+    this.stepsdiv.style.position = "absolute";
     this.stepsdiv.style.top = "50px";
     this.stepsdiv.style.left = "0px";
     this.stepsdiv.style.right = "0px";
     this.stepsdiv.style.height = "50px";
     this.appendChild(this.stepsdiv);
 
-    this.headerdiv.innerHTML = "HEADER";
+    this.stepsdiv.innerHTML = "STEPS";
 
     this.contentdiv = document.createElement("div");
+    this.contentdiv.style.position = "absolute";
     this.contentdiv.style.top = "100px";
     this.contentdiv.style.left = "0px";
     this.contentdiv.style.right = "0px";
     this.contentdiv.style.bottom = "0px";
     this.appendChild(this.contentdiv);
 
-    this.contentdiv.innerHTML = "HEADER";
+    this.contentdiv.innerHTML = "CONTENT";
   }
 
   set drawerTitleHtml (drawerTitleHtml) {
@@ -735,6 +738,7 @@ class CcWizard extends CcStates {
   }
 
   redrawDrawerAndTitle() {
+    this.refillDrawer();
   }
 
   activateState(state) {
@@ -781,7 +785,7 @@ class CcWizard extends CcStates {
       state = state.parentstate;
     }
 
-    this.stepsdiv.innerHTML = JSON.stringify(state);
+    this.stepsdiv.innerHTML = state.title;
   }
 }
 
