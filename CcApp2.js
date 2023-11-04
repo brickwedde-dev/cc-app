@@ -703,24 +703,23 @@ class CcWizard extends CcStates {
     this.style.bottom = "0px";
 
     this.headerdiv = document.createElement("div");
+    this.headerdiv.className = "CcApp2__CcWizard__HeaderDiv";
     this.headerdiv.style.position = "absolute";
     this.headerdiv.style.top = "0px";
     this.headerdiv.style.left = "0px";
     this.headerdiv.style.right = "0px";
-    this.headerdiv.style.height = "50px";
+    this.headerdiv.addD5cProp("innerHTML", this.d5cTranslations["CcWizard__HEADER"]);
     this.appendChild(this.headerdiv);
 
-    this.headerdiv.innerHTML = "HEADER";
 
     this.stepsdiv = document.createElement("div");
+    this.stepsdiv.className = "CcApp2__CcWizard__StepsDiv";
     this.stepsdiv.style.position = "absolute";
-    this.stepsdiv.style.top = "50px";
     this.stepsdiv.style.left = "0px";
     this.stepsdiv.style.right = "0px";
-    this.stepsdiv.style.height = "50px";
+    this.stepsdiv.addD5cProp("innerHTML", this.d5cTranslations["CcWizard__STEPS"]);
     this.appendChild(this.stepsdiv);
 
-    this.stepsdiv.innerHTML = "STEPS";
 
     this.contentdiv = document.createElement("div");
     this.contentdiv.style.position = "absolute";
@@ -730,7 +729,7 @@ class CcWizard extends CcStates {
     this.contentdiv.style.bottom = "0px";
     this.appendChild(this.contentdiv);
 
-    this.contentdiv.innerHTML = "CONTENT";
+    this.contentdiv.innerHTML = "";
   }
 
   set drawerTitleHtml (drawerTitleHtml) {
@@ -771,8 +770,6 @@ class CcWizard extends CcStates {
   }
 
   refillDrawer() {
-    this.stepsdiv.innerHTML = "";
-
     var state = this.state;
     if (!state) {
       return;
@@ -784,8 +781,6 @@ class CcWizard extends CcStates {
       }
       state = state.parentstate;
     }
-
-    this.stepsdiv.innerHTML = state.title;
   }
 }
 
