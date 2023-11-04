@@ -701,32 +701,43 @@ class CcWizard extends CcStates {
     this.style.left = "0px";
     this.style.right = "0px";
     this.style.bottom = "0px";
+    this.style.lineHeight = "auto";
+    this.style.padding = "0px";
+
+    this.languagediv = document.createElement("div");
+    this.languagediv.className = "CcApp2__CcWizard__LanguageDiv";
+    this.languagebtn = htmlelement`<img style="display:inline-block;margin-top:10px;" src="/common/images/lang_${translation.language}.png">`
+    this.languagediv.appendChild(this.languagebtn);
+    this.appendChild(this.languagediv);
 
     this.headerdiv = document.createElement("div");
     this.headerdiv.className = "CcApp2__CcWizard__HeaderDiv";
-    this.headerdiv.style.position = "absolute";
-    this.headerdiv.style.top = "0px";
-    this.headerdiv.style.left = "0px";
-    this.headerdiv.style.right = "0px";
     this.headerdiv.addD5cProp("innerHTML", this.d5cTranslations["CcWizard__HEADER"]);
     this.appendChild(this.headerdiv);
 
 
+    translation.addEventListener("t9n_changed", () => {
+      this.languagebtn.src = `/common/images/lang_${translation.language}.png`
+    });
+
+    this.languagebtn.addEventListener("click", () => {
+      switch (translation.language) {
+        case "de":
+          translation.language = "nl";
+          break;
+        case "nl":
+          translation.language = "de";
+          break;
+      }
+    })
+
     this.stepsdiv = document.createElement("div");
     this.stepsdiv.className = "CcApp2__CcWizard__StepsDiv";
-    this.stepsdiv.style.position = "absolute";
-    this.stepsdiv.style.left = "0px";
-    this.stepsdiv.style.right = "0px";
     this.stepsdiv.addD5cProp("innerHTML", this.d5cTranslations["CcWizard__STEPS"]);
     this.appendChild(this.stepsdiv);
 
 
     this.contentdiv = document.createElement("div");
-    this.contentdiv.style.position = "absolute";
-    this.contentdiv.style.top = "100px";
-    this.contentdiv.style.left = "0px";
-    this.contentdiv.style.right = "0px";
-    this.contentdiv.style.bottom = "0px";
     this.appendChild(this.contentdiv);
 
     this.contentdiv.innerHTML = "";
