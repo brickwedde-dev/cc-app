@@ -739,7 +739,7 @@ class CcWizard extends CcStates {
 
 
     translation.addEventListener("t9n_changed", () => {
-      this.languagebtn.src = `/common/images/lang_${translation.language}.png`
+//      this.languagebtn.src = `/common/images/lang_${translation.language}.png`
     });
 
 
@@ -767,7 +767,30 @@ class CcWizard extends CcStates {
   }
 
   redrawDrawerAndTitle() {
+    this.refreshUrlHistory ();
     this.refillDrawer();
+  }
+
+  refreshUrlHistory () {
+    if (this.state.documenttitle) {
+      document.title = this.state.documenttitle;
+    } else if (this.documenttitle) {
+      document.title = this.documenttitle;
+    }
+
+    var parentstate = this.state;
+    var url = this.state.urlprefix ? "/" + this.state.urlprefix : "/";
+    
+    while(parentstate = parentstate.parentstate) {
+      url = (parentstate.urlprefix ? "/" + parentstate.urlprefix : "") + url;
+    }
+    try {
+      if (document.location.protocol == "https:" || document.location.protocol == "http:") {
+        history.pushState({ }, this.state.title, "?" + url);
+      }
+    } catch (e) {
+      //
+    }
   }
 
   activateState(state) {
