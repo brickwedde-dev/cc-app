@@ -721,22 +721,19 @@ class CcWizard extends CcStates {
     this.languagediv.className = "CcApp2__CcWizard__LanguageDiv";
     this.languagediv.style.display = "inline-block";
 
-for(let lang of ["de","nl"]) {
-var languagebtn = htmlelement`<img style="display:inline-block;margin-top:10px;" src="/common/images/lang_${translation.language}.png">`
-
-
-    languagebtn.addEventListener("click", () => {
-      
-          translation.language = lang;
-          
-      }
-    })
-
-this.languagediv.appendChild(this.languagebtn);
-
-}
+    for(let lang of translation.getLanguages()) {
+      let languagebtn = htmlelement`<img style="display:inline-block;margin-top:10px;" src="/common/images/lang_${lang}.png">`
+      languagebtn.addEventListener("click", () => {
+        translation.language = lang;
+      })
+      languagebtn.style.marginLeft = "0px";
+      languagebtn.style.marginTop = "10px";
+      languagebtn.style.marginRight = "10px";
+      languagebtn.style.marginBottom = "0px";
+      this.languagediv.appendChild(languagebtn);
+    }
     
-        div.appendChild(this.languagediv);
+    div.appendChild(this.languagediv);
 
     this.appendChild(div);
 
