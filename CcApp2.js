@@ -720,9 +720,23 @@ class CcWizard extends CcStates {
     this.languagediv = document.createElement("div");
     this.languagediv.className = "CcApp2__CcWizard__LanguageDiv";
     this.languagediv.style.display = "inline-block";
-    this.languagebtn = htmlelement`<img style="display:inline-block;margin-top:10px;" src="/common/images/lang_${translation.language}.png">`
-    this.languagediv.appendChild(this.languagebtn);
-    div.appendChild(this.languagediv);
+
+for(let lang of ["de","nl"]) {
+var languagebtn = htmlelement`<img style="display:inline-block;margin-top:10px;" src="/common/images/lang_${translation.language}.png">`
+
+
+    languagebtn.addEventListener("click", () => {
+      
+          translation.language = lang;
+          
+      }
+    })
+
+this.languagediv.appendChild(this.languagebtn);
+
+}
+    
+        div.appendChild(this.languagediv);
 
     this.appendChild(div);
 
@@ -731,16 +745,6 @@ class CcWizard extends CcStates {
       this.languagebtn.src = `/common/images/lang_${translation.language}.png`
     });
 
-    this.languagebtn.addEventListener("click", () => {
-      switch (translation.language) {
-        case "de":
-          translation.language = "nl";
-          break;
-        case "nl":
-          translation.language = "de";
-          break;
-      }
-    })
 
     this.stepsdiv = document.createElement("div");
     this.stepsdiv.className = "CcApp2__CcWizard__StepsDiv";
