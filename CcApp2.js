@@ -703,17 +703,28 @@ class CcWizard extends CcStates {
     this.style.bottom = "0px";
     this.style.lineHeight = "auto";
     this.style.padding = "0px";
+    this.style.display = "flex";
+    this.style.flexDirection = "column";
 
-    this.languagediv = document.createElement("div");
-    this.languagediv.className = "CcApp2__CcWizard__LanguageDiv";
-    this.languagebtn = htmlelement`<img style="display:inline-block;margin-top:10px;" src="/common/images/lang_${translation.language}.png">`
-    this.languagediv.appendChild(this.languagebtn);
-    this.appendChild(this.languagediv);
+    var div = document.createElement("div");
+    div.style.flexDirection = "row";
+    div.style.display = "flex";
+    div.className = "CcApp2__CcWizard__HeaderRow";
 
     this.headerdiv = document.createElement("div");
     this.headerdiv.className = "CcApp2__CcWizard__HeaderDiv";
+    this.headerdiv.style.display = "inline-block";
     this.headerdiv.addD5cProp("innerHTML", this.d5cTranslations["CcWizard__HEADER"]);
-    this.appendChild(this.headerdiv);
+    div.appendChild(this.headerdiv);
+
+    this.languagediv = document.createElement("div");
+    this.languagediv.className = "CcApp2__CcWizard__LanguageDiv";
+    this.languagediv.style.display = "inline-block";
+    this.languagebtn = htmlelement`<img style="display:inline-block;margin-top:10px;" src="/common/images/lang_${translation.language}.png">`
+    this.languagediv.appendChild(this.languagebtn);
+    div.appendChild(this.languagediv);
+
+    this.appendChild(div);
 
 
     translation.addEventListener("t9n_changed", () => {
@@ -737,10 +748,17 @@ class CcWizard extends CcStates {
     this.appendChild(this.stepsdiv);
 
 
-    this.contentdiv = document.createElement("div");
-    this.appendChild(this.contentdiv);
+    var div = document.createElement("div");
+    div.className = "CcApp2__CcWizard__ContentCenterDiv";
+    div.style.alignItems = "center";
+    div.style.justifyContent = "center";
+    div.style.display = "flex";
+    this.appendChild(div);
 
+    this.contentdiv = document.createElement("div");
+    this.contentdiv.className = "CcApp2__CcWizard__ContentDiv";
     this.contentdiv.innerHTML = "";
+    div.appendChild(this.contentdiv);
   }
 
   set drawerTitleHtml (drawerTitleHtml) {
