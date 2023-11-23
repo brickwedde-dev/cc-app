@@ -711,7 +711,7 @@ class CcWizard extends CcStates {
     div.style.display = "flex";
     div.className = "CcApp2__CcWizard__HeaderRow";
 
-    this.headerdiv = document.createElement("div");
+    this.headerdiv = document.createElement("h3");
     this.headerdiv.className = "CcApp2__CcWizard__HeaderDiv";
     this.headerdiv.style.display = "inline-block";
     this.headerdiv.addD5cProp("innerHTML", this.d5cTranslations["CcWizard__HEADER"]);
