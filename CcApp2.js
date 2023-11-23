@@ -717,10 +717,14 @@ class CcWizard extends CcStates {
     this.headerdiv.addD5cProp("innerHTML", this.d5cTranslations["CcWizard__HEADER"]);
     div.appendChild(this.headerdiv);
 
+    var rightdiv = document.createElement("div");
+    rightdiv.style.display = "inline-block";
+    div.appendChild(rightdiv);
+
     this.logoutdiv = document.createElement("div");
     this.logoutdiv.className = "CcApp2__CcWizard__LogoutDiv";
     this.logoutdiv.style.display = "inline-block";
-    div.appendChild(this.logoutdiv);
+    rightdiv.appendChild(this.logoutdiv);
 
     this.languagediv = document.createElement("div");
     this.languagediv.className = "CcApp2__CcWizard__LanguageDiv";
@@ -738,7 +742,7 @@ class CcWizard extends CcStates {
       this.languagediv.appendChild(languagebtn);
     }
     
-    div.appendChild(this.languagediv);
+    rightdiv.appendChild(this.languagediv);
 
     this.appendChild(div);
 
