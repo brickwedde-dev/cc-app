@@ -169,6 +169,8 @@ class CcApp extends HTMLElement {
     for(var i = 0; i < this.stateurls.length; i++) {
       var stateurl = this.stateurls[i];
       if (!stateurl) {
+        this.stateurls.splice (i, 1);
+        i--;
         continue;
       }
       if (mystate._urlprefix && (mystate.urlprefix == stateurl || mystate._urlprefix.indexOf(stateurl) == 0)) {
