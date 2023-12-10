@@ -136,8 +136,13 @@ class CcStates extends HTMLElement {
     for(var i = 0; i < this.stateurls.length; i++) {
       var stateurl = this.stateurls[i];
       if (!stateurl) {
+        this.stateurls.splice (i, 1);
+        i--;
         continue;
       }
+    }
+    for(var i = 0; i < this.stateurls.length; i++) {
+      var stateurl = this.stateurls[i];
       if (mystate._urlprefix && (mystate.urlprefix == stateurl || mystate._urlprefix.indexOf(stateurl) == 0)) {
         this.stateurls.splice (i, 1);
         i--;
@@ -182,8 +187,7 @@ class CcStates extends HTMLElement {
 
   }
 
-  updateUrlprefix(urlprefix) {
-    this.state._urlprefix = urlprefix;
+  updateUrl() {
     var parentstate = this.state;
     var url = this.state.urlprefix ? "/" + this.state.urlprefix : "/";
     
@@ -197,6 +201,11 @@ class CcStates extends HTMLElement {
     } catch (e) {
       //
     }
+  }
+
+  updateUrlprefix(urlprefix) {
+    this.state._urlprefix = urlprefix;
+    this.updateUrl();
   }
 
   getAppPath() {
@@ -504,8 +513,7 @@ class CcApp extends CcStates {
     this.topappbar.titleHTML = titlediv;
   }
 
-  updateUrlprefix(urlprefix) {
-    this.state._urlprefix = urlprefix;
+  updateUrl() {
     var parentstate = this.state;
     var url = this.state.urlprefix ? "/" + this.state.urlprefix : "/";
     
@@ -519,6 +527,11 @@ class CcApp extends CcStates {
     } catch (e) {
       //
     }
+  }
+
+  updateUrlprefix(urlprefix) {
+    this.state._urlprefix = urlprefix;
+    this.updateUrl();
   }
 
   refillDrawer() {
