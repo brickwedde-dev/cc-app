@@ -31,6 +31,24 @@ class CcStates extends HTMLElement {
     this.tooltipsurface.style.lineBreak = "anywhere";
     this.tooltipdiv.appendChild(this.tooltipsurface);
 
+    this.addEventListener("click", (e) => {
+      var div = e.target;
+      while (div && div.hasAttribute) {
+        var tooltipid = "";
+        if (div.hasAttribute("tooltipid")) {
+          tooltipid = div.getAttribute("tooltipid");
+        } else if (div.tooltipid) {
+          tooltipid = div.tooltipid;
+        }
+        if (tooltipid) {
+          this.lasttooltipid = tooltipid;
+          this.dispatchEvent(new CustomEvent("tooltipid_changed2", {detail : { tooltipid: this.lasttooltipid, div, clicked : true, clientX : e.clientX, clientY : e.clientY, } }));
+          return;
+        }
+        div = div.parentNode;
+      }
+    });
+
     this.addEventListener("mouseup", (e) => {
       if (this.tooltipTimer) {
         clearTimeout(this.tooltipTimer);
@@ -106,9 +124,28 @@ class CcStates extends HTMLElement {
     this.tooltiptext = tooltiptext;
   }
 
-  showTooltip(timeout) {
+  showTooltip(timeout, top, left) {
     this.hideTooltip();
-    this.tooltiptimeout = timeout;
+    if (timeout === 0) {
+      if (this.tooltipTimer) {
+        clearTimeout(this.tooltipTimer)
+        this.tooltipTimer = null;
+      }
+
+      this.tooltipdiv.style.display = "block";
+      this.tooltipsurface.innerText = this.tooltiptext;
+
+      if (top > this.offsetHeight - this.tooltipdiv.offsetHeight) {
+        top = this.offsetHeight - this.tooltipdiv.offsetHeight;
+      }
+      if (left > this.offsetWidth - this.tooltipdiv.offsetWidth) {
+        left = this.offsetWidth - this.tooltipdiv.offsetWidth;
+      }
+      this.tooltipdiv.style.top = (top) + "px";
+      this.tooltipdiv.style.left = (left) + "px";
+    } else {
+      this.tooltiptimeout = timeout;
+    }
   }
 
   addRootState(state) {
@@ -393,9 +430,23 @@ class CcApp extends CcStates {
     this.tooltiptext = tooltiptext;
   }
 
-  showTooltip(timeout) {
+  showTooltip(timeout, top, left) {
     this.hideTooltip();
-    this.tooltiptimeout = timeout;
+
+    if (timeout === 0) {
+      if (this.tooltipTimer) {
+        clearTimeout(this.tooltipTimer)
+        this.tooltipTimer = null;
+      }
+
+      this.tooltipdiv.style.display = "block";
+      this.tooltipsurface.innerText = this.tooltiptext;
+
+      this.tooltipdiv.style.top = (top) + "px";
+      this.tooltipdiv.style.left = (left) + "px";
+    } else {
+      this.tooltiptimeout = timeout;
+    }
   }
 
   addState(state) {
