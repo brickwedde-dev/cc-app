@@ -66,13 +66,13 @@ class CcApp extends HTMLElement {
 
     this.addEventListener("mouseup", (e) => {
       if (this.tooltipTimer) {
-        clearTimeout(this.tooltipTimer);
+        this.hideTooltip();
       }
     });
 
     this.addEventListener("mousedown", (e) => {
       if (this.tooltipTimer) {
-        clearTimeout(this.tooltipTimer);
+        this.hideTooltip();
       }
     });
 
