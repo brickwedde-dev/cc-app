@@ -68,7 +68,11 @@ class CcStates extends HTMLElement {
       if (this.tooltiptimeout > 0) {
         this.tooltipTimer = setTimeout(() => {
           this.tooltipdiv.style.display = "block";
-          this.tooltipsurface.innerText = this.tooltiptext;
+          if (this.tooltiphtml !== undefined) {
+            this.tooltipsurface.innerHTML = this.tooltiphtml;
+          } else if (this.tooltiptext !== undefined) {
+            this.tooltipsurface.innerText = this.tooltiptext;
+          }
           this.tooltipTimer = null;
 
           var top = e.clientY + 15;
@@ -122,6 +126,13 @@ class CcStates extends HTMLElement {
   setTooltipText(tooltiptext) {
     this.hideTooltip();
     this.tooltiptext = tooltiptext;
+    this.tooltiphtml = undefined;
+  }
+
+  setTooltipHTML(tooltiphtml) {
+    this.hideTooltip();
+    this.tooltiphtml = tooltiphtml;
+    this.tooltiptext = undefined;
   }
 
   showTooltip(timeout, top, left) {
@@ -133,7 +144,11 @@ class CcStates extends HTMLElement {
       }
 
       this.tooltipdiv.style.display = "block";
-      this.tooltipsurface.innerText = this.tooltiptext;
+      if (this.tooltiphtml !== undefined) {
+        this.tooltipsurface.innerHTML = this.tooltiphtml;
+      } else if (this.tooltiptext !== undefined) {
+        this.tooltipsurface.innerText = this.tooltiptext;
+      }
 
       if (top > this.offsetHeight - this.tooltipdiv.offsetHeight) {
         top = this.offsetHeight - this.tooltipdiv.offsetHeight;
@@ -367,7 +382,11 @@ class CcApp extends CcStates {
       if (this.tooltiptimeout > 0) {
         this.tooltipTimer = setTimeout(() => {
           this.tooltipdiv.style.display = "block";
-          this.tooltipsurface.innerText = this.tooltiptext;
+          if (this.tooltiphtml !== undefined) {
+            this.tooltipsurface.innerHTML = this.tooltiphtml;
+          } else if (this.tooltiptext !== undefined) {
+            this.tooltipsurface.innerText = this.tooltiptext;
+          }
           this.tooltipTimer = null;
 
           var top = e.clientY + 15;
@@ -428,6 +447,13 @@ class CcApp extends CcStates {
   setTooltipText(tooltiptext) {
     this.hideTooltip();
     this.tooltiptext = tooltiptext;
+    this.tooltiphtml = undefined;
+  }
+
+  setTooltipHTML(tooltiphtml) {
+    this.hideTooltip();
+    this.tooltiptext = undefined;
+    this.tooltiphtml = tooltiphtml;
   }
 
   showTooltip(timeout, top, left) {
@@ -440,7 +466,11 @@ class CcApp extends CcStates {
       }
 
       this.tooltipdiv.style.display = "block";
-      this.tooltipsurface.innerText = this.tooltiptext;
+      if (this.tooltiphtml !== undefined) {
+        this.tooltipsurface.innerHTML = this.tooltiphtml;
+      } else if (this.tooltiptext !== undefined) {
+        this.tooltipsurface.innerText = this.tooltiptext;
+      }
 
       this.tooltipdiv.style.top = (top) + "px";
       this.tooltipdiv.style.left = (left) + "px";

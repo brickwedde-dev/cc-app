@@ -54,9 +54,11 @@ class CcApp extends HTMLElement {
     this.tooltipdiv.style.color = "white";
     this.tooltipdiv.style.zIndex = "999999";
     this.tooltipdiv.style.borderRadius = "4px";
-    this.tooltipdiv.style.padding = "10px";
+    this.tooltipdiv.style.padding = "0px";
     this.tooltipdiv.style.minWidth = "150px";
     this.tooltipdiv.style.maxWidth = "30vw";
+    this.tooltipdiv.style.overflowWrap = "normal";
+    this.tooltipdiv.style.margin = "10px";
     this.appendChild(this.tooltipdiv);
 
     this.tooltipsurface = document.createElement("div");
@@ -83,7 +85,11 @@ class CcApp extends HTMLElement {
       if (this.tooltiptimeout > 0) {
         this.tooltipTimer = setTimeout(() => {
           this.tooltipdiv.style.display = "block";
-          this.tooltipsurface.innerText = this.tooltiptext;
+          if (this.tooltiphtml !== undefined) {
+            this.tooltipsurface.innerHTML = this.tooltiphtml;
+          } else if (this.tooltiptext !== undefined) {
+            this.tooltipsurface.innerText = this.tooltiptext;
+          }
           this.tooltipTimer = null;
 
           var top = e.clientY + 15;
@@ -144,6 +150,13 @@ class CcApp extends HTMLElement {
   setTooltipText(tooltiptext) {
     this.hideTooltip();
     this.tooltiptext = tooltiptext;
+    this.tooltiphtml = undefined;
+  }
+
+  setTooltipHTML(tooltiphtml) {
+    this.hideTooltip();
+    this.tooltiphtml = tooltiphtml;
+    this.tooltiptext = undefined;
   }
 
   showTooltip(timeout) {
