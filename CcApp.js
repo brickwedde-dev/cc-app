@@ -63,22 +63,22 @@ class CcApp extends HTMLElement {
 
     this.tooltipsurface = document.createElement("div");
     this.tooltipsurface.className = "mdc-tooltip__surface";
-    this.tooltipsurface.style.lineBreak = "anywhere";
+    this.tooltipsurface.style.lineBreak = "loose";
     this.tooltipdiv.appendChild(this.tooltipsurface);
 
-    this.addEventListener("mouseup", (e) => {
+    document.addEventListener("mouseup", (e) => {
       if (this.tooltipTimer) {
         this.hideTooltip();
       }
     });
 
-    this.addEventListener("mousedown", (e) => {
+    document.addEventListener("mousedown", (e) => {
       if (this.tooltipTimer) {
         this.hideTooltip();
       }
     });
 
-    this.addEventListener("mousemove", (e) => {
+    document.addEventListener("mousemove", (e) => {
       if (this.tooltipTimer) {
         clearTimeout(this.tooltipTimer);
       }
@@ -106,7 +106,7 @@ class CcApp extends HTMLElement {
       }
     });
 
-    this.addEventListener("mouseover", (e) => {
+    document.addEventListener("mouseover", (e) => {
       var div = e.target;
       while (div && div.hasAttribute) {
         var tooltipid = "";
